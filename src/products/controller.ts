@@ -8,13 +8,13 @@ import {
   updateProduct,
 } from "./service";
 
-const productRoute = Router();
+const productRouter = Router();
 
-productRoute.get("/", (req, res) => {
+productRouter.get("/", (req, res) => {
   res.json(getAllProducts());
 });
 
-productRoute.delete("/:id", (req, res) => {
+productRouter.delete("/:id", (req, res) => {
   const id = req.params.id;
   const hasRemoved = deleteProduct(Number(id));
 
@@ -29,12 +29,12 @@ productRoute.delete("/:id", (req, res) => {
   }
 });
 
-productRoute.get("/:id", (req, res) => {
+productRouter.get("/:id", (req, res) => {
   const id = Number(req.params.id);
   res.json(getProductById(id));
 });
 
-productRoute.post("/", (req, res) => {
+productRouter.post("/", (req, res) => {
   const hasCreated = createProduct(req.body);
   if (hasCreated) {
     res.status(201).json({ message: "Product succesfully created" });
@@ -45,7 +45,7 @@ productRoute.post("/", (req, res) => {
   }
 });
 
-productRoute.put("/:id", (req, res) => {
+productRouter.put("/:id", (req, res) => {
   const id = Number(req.params.id);
   const updatedProduct = req.body;
 
@@ -60,7 +60,7 @@ productRoute.put("/:id", (req, res) => {
   }
 });
 
-productRoute.get("/", (req, res) => {
+productRouter.get("/", (req, res) => {
   const items = req.query.items;
   const currentPage = req.query.currentPage;
 
@@ -73,4 +73,4 @@ productRoute.get("/", (req, res) => {
   res.json(paginateResult);
 });
 
-export default productRoute;
+export default productRouter;
