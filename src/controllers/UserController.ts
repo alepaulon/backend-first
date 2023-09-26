@@ -1,33 +1,45 @@
 import { Router } from "express";
-import { registerUser } from "../services/UserService";
+import { registerUser, getUserById, loginUser } from "../services/UserService";
 import { sign } from "jsonwebtoken";
+import { User } from "@prisma/client";
 
 const UserController = Router();
 
-// Obtener los usuarios
+UserController.get("/:id", async (req, res) => {
+  const userId = req.params.id;
+  const user = await getUserById(Number(userId));
 
-// Crear un usuario
-UserController.post("/register", async (req, res) => {
-  const user = req.body;
+  return res.status(200).json(user);
+});
 
-  // Validaciones
-  if (!user.email || user.email.length < 10) {
-    res.status(400).json({ message: "Inserte un mail correcto" });
+UserController.post("/login", async (req, res) => {
+  const user = await loginUser(req.body);
+
+  if (!user) {
+    return res.status(401).json({ message: "Usuario o contraseña incorrecta" });
   }
 
-  const createdUser = await registerUser(user);
+  return res.status(200).json(user);
+});
 
-  // Genera un token JWT para el usuario autenticado
-  const token = sign({ user: user }, "clavesupersegura123", {
-    expiresIn: "2h",
-  });
-  console.log(token);
+// Crear una publicación
+UserController.post("/", async (req, res) => {
+  const user = req.body as User;
+
+  // Validaciones
+  if (!user.name || user.email.length < 10) {
+    res
+      .status(400)
+      .json({ message: "Los datos no son correctos por favor verificarlos" });
+  }
+
+  const userToken = await registerUser(user);
 
   return res
-    .status(createdUser ? 201 : 500)
+    .status(userToken ? 201 : 500)
     .json(
-      createdUser
-        ? { message: "Creado exitosamente" }
+      userToken
+        ? { token: userToken }
         : { message: "Ocurrió un problema intente mas tarde" }
     );
 });
